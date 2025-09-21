@@ -32,10 +32,9 @@ public class UHLDebugSystem : ModuleRules
 				"Engine",
 				
 				// ... add other public dependencies that you statically link with here ...
-				"GameplayAbilities",
 				"GameplayTags",
 				"GameplayTasks",
-				"EnhancedInput", 
+				"EnhancedInput",
 				
 			}
 			);
@@ -47,7 +46,6 @@ public class UHLDebugSystem : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UMG",
-				"AnimGraphRuntime",
 				"DeveloperSettings", 
 				
 				// Should not use any other UHL modules

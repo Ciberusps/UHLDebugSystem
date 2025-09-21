@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameplayEffect.h"
+#include "GameplayTagContainer.h"
 #include "AssetRegistry/AssetData.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UHLDebugBlueprintLibrary.generated.h"
@@ -14,8 +14,7 @@ class UHLDEBUGSYSTEM_API UUHLDebugBlueprintLibrary : public UBlueprintFunctionLi
 
 public:
 	/** DebugSubsystem **/
-	UFUNCTION(
-		BlueprintPure, Category = "UnrealHelperLibrary|Debug", meta = (Categories = "UHL.DebugCategory,DebugCategory", WorldContext = "WorldContextObject", Keywords = "UnrealHelperLibrary debug"))
+	UFUNCTION(BlueprintPure, Category = "UnrealHelperLibrary|Debug", meta = (Categories = "UHL.DebugCategory,DebugCategory", WorldContext = "WorldContextObject", Keywords = "UnrealHelperLibrary debug"))
 	static bool IsUHLDebugCategoryEnabled(UObject* WorldContextObject, FGameplayTag DebugCategoryGameplayTag);
 	/** ~DebugSubsystem **/
 };
