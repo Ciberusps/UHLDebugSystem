@@ -39,7 +39,7 @@ public:
 
 protected:
 //~UDeveloperSettings interface
-    virtual FName GetCategoryName() const override { return FApp::GetProjectName(); };
+	virtual FName GetCategoryName() const override { return FName("UnrealHelperLibrary"); }
 //~End of UDeveloperSettings interface
 
 #if WITH_EDITOR
