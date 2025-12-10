@@ -3,6 +3,7 @@
 #include "UHLDebugCategory.h"
 
 #include "Templates/SubclassOf.h"
+#include "Kismet/GameplayStatics.h"
 #include "UHLDebugCategoryComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategory)
@@ -17,6 +18,13 @@ bool FUHLDebugCategory::TryEnable(UObject* ContextObj)
 
     bool bResult = false;
 
+    // Resolve controller once per activation call
+    APlayerController* PlayerController = nullptr;
+    if (UWorld* World = ContextObj->GetWorld())
+    {
+        PlayerController = UGameplayStatics::GetPlayerController(World, 0);
+    }
+
     int32 ComponentsActivated = 0;
     int32 ComponentsRequiredToActivate = Components.Num();
     for (TSubclassOf<UUHLDebugCategoryComponent> ComponentClass : Components)
@@ -28,9 +36,9 @@ bool FUHLDebugCategory::TryEnable(UObject* ContextObj)
         };
 
         UUHLDebugCategoryComponent* Component = GetOrCreateDebugCategoryComponent(ComponentClass, ContextObj);
-        if (Component->CanActivate(ContextObj))
+        if (Component->CanActivate(ContextObj, PlayerController))
         {
-            Component->Activate(ContextObj);
+            Component->Activate(ContextObj, PlayerController);
             ComponentsActivated++;
         }
     }
@@ -45,11 +53,17 @@ bool FUHLDebugCategory::TryEnable(UObject* ContextObj)
 
 void FUHLDebugCategory::TryDisable(UObject* ContextObj)
 {
+    APlayerController* PlayerController = nullptr;
+    if (ContextObj && ContextObj->GetWorld())
+    {
+        PlayerController = UGameplayStatics::GetPlayerController(ContextObj->GetWorld(), 0);
+    }
+
     for (UUHLDebugCategoryComponent* InstancedComponent : InstancedComponents)
     {
         if (InstancedComponent)
         {
-            InstancedComponent->Deactivate(ContextObj);
+            InstancedComponent->Deactivate(ContextObj, PlayerController);
         }
     }
     bIsEnabled = false;

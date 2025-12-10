@@ -49,6 +49,7 @@ protected:
 private:
     bool bSetupped = false;
     bool bSetUpCategoriesThatRequiresPlayerController = false;
+    bool bSetUpCategoriesThatRequiresPlayerPawn = false;
     bool bIsSetuping = true;
 
     UPROPERTY()
@@ -63,10 +64,18 @@ private:
 	UFUNCTION()
 	void OnWorldBeginTearDown(UWorld* World);
 
-	// waiting for PlayerController spawned to InitDebugCategories that requires PlayerController
+	// waiting for PlayerController / PlayerPawn spawned to InitDebugCategories that requires them
 	UFUNCTION()
 	void OnActorSpawned(AActor* SpawnedActor);
+	void RegisterPlayerController(APlayerController* PlayerController);
+	void UnregisterPlayerControllerDelegates();
+	void OnPlayerPawnChanged(APawn* OldPawn, APawn* NewPawn);
 
 	// should be called when player controller available, e.g. in PlayerController.BeginPlay
 	void SetUpCategoriesThatRequiresPlayerController();
+    // should be called when player pawn available
+    void SetUpCategoriesThatRequiresPlayerPawn();
+
+	UPROPERTY()
+	TMap<TWeakObjectPtr<APlayerController>, FDelegateHandle> PawnChangedDelegateHandles;
 };

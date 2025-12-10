@@ -15,8 +15,8 @@ class UHLDEBUGSYSTEM_API UDCC_AbilityInputCache : public UUHLDebugCategoryCompon
 	GENERATED_BODY()
 
 public:
-	virtual void Activate_Implementation(UObject* ContextObject) override;
-	virtual void Deactivate_Implementation(UObject* ContextObject) override;
+	virtual void Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController = nullptr) override;
+	virtual void Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController = nullptr) override;
 };
 
 

@@ -8,16 +8,16 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DCC_Collisions)
 
-void UDCC_Collisions::Activate_Implementation(UObject* ContextObject)
+void UDCC_Collisions::Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-	UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("show Collision"));
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("ShowFlag.Collision 1"));
-    Super::Activate_Implementation(ContextObject);
+	UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("show Collision"));
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("ShowFlag.Collision 1"));
+    Super::Activate_Implementation(WorldContextObject, PlayerController);
 }
 
-void UDCC_Collisions::Deactivate_Implementation(UObject* ContextObject)
+void UDCC_Collisions::Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("ShowFlag.Collision 0"));
-	UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("show Collision"));
-    Super::Deactivate_Implementation(ContextObject);
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("ShowFlag.Collision 0"));
+	UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("show Collision"));
+    Super::Deactivate_Implementation(WorldContextObject, PlayerController);
 }

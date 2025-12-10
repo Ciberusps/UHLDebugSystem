@@ -8,14 +8,14 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DCC_InputSystem_EnhancedInput)
 
-void UDCC_InputSystem_EnhancedInput::Activate_Implementation(UObject* ContextObject)
+void UDCC_InputSystem_EnhancedInput::Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("showdebug enhancedinput"));
-    Super::Activate_Implementation(ContextObject);
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("showdebug enhancedinput"));
+    Super::Activate_Implementation(WorldContextObject, PlayerController);
 }
 
-void UDCC_InputSystem_EnhancedInput::Deactivate_Implementation(UObject* ContextObject)
+void UDCC_InputSystem_EnhancedInput::Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("showdebug reset"));
-    Super::Deactivate_Implementation(ContextObject);
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("showdebug reset"));
+    Super::Deactivate_Implementation(WorldContextObject, PlayerController);
 }

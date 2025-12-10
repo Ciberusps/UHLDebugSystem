@@ -8,15 +8,15 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DCC_AbilitySystem_Attributes)
 
-void UDCC_AbilitySystem_Attributes::Activate_Implementation(UObject* ContextObject)
+void UDCC_AbilitySystem_Attributes::Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("showdebug abilitysystem"));
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("AbilitySystem.Debug.SetCategory Attributes"));
-    return Super::Activate_Implementation(ContextObject);
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("showdebug abilitysystem"));
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("AbilitySystem.Debug.SetCategory Attributes"));
+    return Super::Activate_Implementation(WorldContextObject, PlayerController);
 }
 
-void UDCC_AbilitySystem_Attributes::Deactivate_Implementation(UObject* ContextObject)
+void UDCC_AbilitySystem_Attributes::Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
-    UKismetSystemLibrary::ExecuteConsoleCommand(ContextObject->GetWorld(), FString("showdebug reset"));
-    Super::Deactivate_Implementation(ContextObject);
+    UKismetSystemLibrary::ExecuteConsoleCommand(WorldContextObject->GetWorld(), FString("showdebug reset"));
+    Super::Deactivate_Implementation(WorldContextObject, PlayerController);
 }

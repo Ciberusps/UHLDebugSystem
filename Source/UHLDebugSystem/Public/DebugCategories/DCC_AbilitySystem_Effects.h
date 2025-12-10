@@ -15,6 +15,6 @@ class UHLDEBUGSYSTEM_API UDCC_AbilitySystem_Effects : public UUHLDebugCategoryCo
 	GENERATED_BODY()
 
 public:
-    virtual void Activate_Implementation(UObject* ContextObject) override;
-    virtual void Deactivate_Implementation(UObject* ContextObject) override;
+    virtual void Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController = nullptr) override;
+    virtual void Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController = nullptr) override;
 };
