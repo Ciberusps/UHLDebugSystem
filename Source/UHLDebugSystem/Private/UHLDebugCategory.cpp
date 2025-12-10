@@ -9,6 +9,12 @@
 
 bool FUHLDebugCategory::TryEnable(UObject* ContextObj)
 {
+    // Need a valid world-aware context for activation
+    if (!ContextObj || !ContextObj->GetWorld())
+    {
+        return false;
+    }
+
     bool bResult = false;
 
     int32 ComponentsActivated = 0;
