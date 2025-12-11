@@ -6,30 +6,15 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategoryComponent)
 
-APlayerController* UUHLDebugCategoryComponent::GetPlayerControllerFromContext(UObject* WorldContextObject, int32 PlayerIndex) const
-{
-    if (!WorldContextObject)
-    {
-        return nullptr;
-    }
-
-    if (UWorld* World = WorldContextObject->GetWorld())
-    {
-        return UGameplayStatics::GetPlayerController(World, PlayerIndex);
-    }
-
-    return nullptr;
-}
-
-bool UUHLDebugCategoryComponent::CanActivate_Implementation(UObject* WorldContextObject) const
+bool UUHLDebugCategoryComponent::CanActivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController) const
 {
     return true;
 }
 
-void UUHLDebugCategoryComponent::Activate_Implementation(UObject* WorldContextObject)
+void UUHLDebugCategoryComponent::Activate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
 }
 
-void UUHLDebugCategoryComponent::Deactivate_Implementation(UObject* WorldContextObject)
+void UUHLDebugCategoryComponent::Deactivate_Implementation(UObject* WorldContextObject, APlayerController* PlayerController)
 {
 }

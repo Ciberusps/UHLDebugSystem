@@ -32,6 +32,16 @@ void UUHLDebugSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	const UUHLDebugSystemSettings* DeveloperSettings = GetDefault<UUHLDebugSystemSettings>();
 	DebugCategories = DeveloperSettings->DebugCategories;
 
+	// If no categories require pawn, mark as setup to avoid waiting forever.
+	const bool bAnyRequiresPawn = DebugCategories.ContainsByPredicate([](const FUHLDebugCategory& Category)
+	{
+		return Category.bRequiresPlayerPawnToEnable;
+	});
+	if (!bAnyRequiresPawn)
+	{
+		bSetUpCategoriesThatRequiresPlayerPawn = true;
+	}
+
 	for (const TTuple<FGameplayTag, bool>& EnabledDebugCategory : DeveloperSettings->EnabledDebugCategories)
 	{
 		const FUHLDebugCategory* UHLDebugCategory = DebugCategories.FindByPredicate([=](const FUHLDebugCategory& DebugCategory)
@@ -61,12 +71,24 @@ if (BuildType != EUHLDebugSystemBuildType::Editor)
 
 	FWorldDelegates::OnPostWorldInitialization.AddUObject(this, &ThisClass::OnPostWorldInit);
 	FWorldDelegates::OnWorldBeginTearDown.AddUObject(this, &ThisClass::OnWorldBeginTearDown);
+
+	// If a PlayerController is already present (e.g., early startup or seamless travel),
+	// run setup immediately so PC/Pawn-required categories don't miss their activation window.
+	if (UWorld* World = GetWorld())
+	{
+		const bool bReady = TrySetupPlayerRequirements();
+		if (!bReady)
+		{
+			StartSetupRetryTimer();
+		}
+	}
 }
 
 void UUHLDebugSystemSubsystem::Deinitialize()
 {
 	FWorldDelegates::OnPostWorldInitialization.RemoveAll(this);
-	
+	StopSetupRetryTimer();
+
 	if (UWorld* World = GetWorld())
 	{
 		if (ActorSpawnedDelegateHandle.IsValid())
@@ -89,25 +111,71 @@ void UUHLDebugSystemSubsystem::Deinitialize()
 
 void UUHLDebugSystemSubsystem::OnActorSpawned(AActor* SpawnedActor)
 {
-	if (AController* Controller = Cast<AController>(SpawnedActor))
+	const bool bReady = TrySetupPlayerRequirements();
+	if (!bReady)
 	{
-		// Pawn spawned, check if it’s controlled by a player
-		if (APlayerController* PC = Cast<APlayerController>(Controller))
-		{
-			UE_LOG(LogTemp, Log, TEXT("Pawn %s began play, controlled by PlayerController %s"), *Controller->GetName(), *PC->GetName());
-			// Handle the player/pawn here (e.g., subscribe to further events, spawn effects, etc.)
+		StartSetupRetryTimer();
+	}
+}
 
-			// unsubscribe as fast as possible
-			if (UWorld* World = GetWorld())
-			{
-				if (ActorSpawnedDelegateHandle.IsValid())
-				{
-					World->RemoveOnActorSpawnedHandler(ActorSpawnedDelegateHandle);
-				}
-			}
-			SetUpCategoriesThatRequiresPlayerController();
+bool UUHLDebugSystemSubsystem::TrySetupPlayerRequirements()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	APlayerController* PC = World->GetFirstPlayerController();
+	if (PC && !bSetUpCategoriesThatRequiresPlayerController)
+	{
+		SetUpCategoriesThatRequiresPlayerController();
+	}
+
+	APawn* Pawn = PC ? PC->GetPawn() : nullptr;
+	// wait until pawn finished BeginPlay to avoid accessing uninitialized components
+	if (Pawn && Pawn->HasActorBegunPlay() && !bSetUpCategoriesThatRequiresPlayerPawn)
+	{
+		SetUpCategoriesThatRequiresPlayerPawn();
+	}
+
+	const bool bReady = bSetUpCategoriesThatRequiresPlayerController && bSetUpCategoriesThatRequiresPlayerPawn;
+	if (bReady)
+	{
+		StopSetupRetryTimer();
+		if (ActorSpawnedDelegateHandle.IsValid())
+		{
+			World->RemoveOnActorSpawnedHandler(ActorSpawnedDelegateHandle);
+			ActorSpawnedDelegateHandle.Reset();
 		}
 	}
+	return bReady;
+}
+
+void UUHLDebugSystemSubsystem::StartSetupRetryTimer()
+{
+	if (SetupRetryTimerHandle.IsValid()) return;
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(SetupRetryTimerHandle, this, &UUHLDebugSystemSubsystem::OnSetupRetryTimer, 0.25f, true);
+	}
+}
+
+void UUHLDebugSystemSubsystem::StopSetupRetryTimer()
+{
+	if (SetupRetryTimerHandle.IsValid())
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().ClearTimer(SetupRetryTimerHandle);
+		}
+		SetupRetryTimerHandle.Invalidate();
+	}
+}
+
+void UUHLDebugSystemSubsystem::OnSetupRetryTimer()
+{
+	TrySetupPlayerRequirements();
 }
 
 void UUHLDebugSystemSubsystem::SetUpCategoriesThatRequiresPlayerController()
@@ -149,6 +217,68 @@ if (BuildType != EUHLDebugSystemBuildType::Editor)
 	UE_LOG(LogTemp, Warning, TEXT("[UUHLDebugSubsystem::SetUpCategoriesThatRequiresPlayerController] Finish"));
 }
 
+void UUHLDebugSystemSubsystem::SetUpCategoriesThatRequiresPlayerPawn()
+{
+	if (bSetUpCategoriesThatRequiresPlayerPawn) return;
+
+	// Early out if no categories require pawn: mark as done.
+	const bool bAnyRequiresPawn = DebugCategories.ContainsByPredicate([](const FUHLDebugCategory& Category)
+	{
+		return Category.bRequiresPlayerPawnToEnable;
+	});
+	if (!bAnyRequiresPawn)
+	{
+		bSetUpCategoriesThatRequiresPlayerPawn = true;
+		return;
+	}
+
+	// Require a valid player pawn before proceeding.
+	APawn* PlayerPawn = nullptr;
+	if (UWorld* World = GetWorld())
+	{
+		if (APlayerController* PC = World->GetFirstPlayerController())
+		{
+			PlayerPawn = PC->GetPawn();
+		}
+	}
+	if (!PlayerPawn)
+	{
+		return; // Wait for pawn spawn; delegate will retry.
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[UUHLDebugSubsystem::SetUpCategoriesThatRequiresPlayerPawn] Start"));
+	bSetUpCategoriesThatRequiresPlayerPawn = true;
+
+	const UUHLDebugSystemSettings* DeveloperSettings = GetDefault<UUHLDebugSystemSettings>();
+
+	for (const TTuple<FGameplayTag, bool>& EnabledDebugCategory : DeveloperSettings->EnabledDebugCategories)
+	{
+		const FUHLDebugCategory* UHLDebugCategory = DebugCategories.FindByPredicate([=](const FUHLDebugCategory& DebugCategory)
+		{
+			return DebugCategory.Tags.HasAnyExact(FGameplayTagContainer(EnabledDebugCategory.Key));
+		});
+		if (EnabledDebugCategory.Value == true && UHLDebugCategory != nullptr && UHLDebugCategory->bRequiresPlayerPawnToEnable)
+		{
+			EnableDebugCategory(EnabledDebugCategory.Key, EnabledDebugCategory.Value);
+		}
+	};
+
+	EUHLDebugSystemBuildType BuildType = GetCurrentUHLBuildType();
+	if (BuildType != EUHLDebugSystemBuildType::Editor)
+	{
+		for (const FUHLDebugCategory& DebugCategory : DebugCategories)
+		{
+			if (DebugCategory.ByDefaultEnabledInBuildTypes.Contains(BuildType) && DebugCategory.bRequiresPlayerPawnToEnable)
+			{
+				EnableDebugCategory(DebugCategory.Tags.First(), true);
+			}
+		}
+	}
+
+	bIsSetuping = false;
+	UE_LOG(LogTemp, Warning, TEXT("[UUHLDebugSubsystem::SetUpCategoriesThatRequiresPlayerPawn] Finish"));
+}
+
 bool UUHLDebugSystemSubsystem::IsCategoryEnabled(const FGameplayTag DebugCategoryTag) const
 {
     const FUHLDebugCategory* UHLDebugCategory = DebugCategories.FindByPredicate([=](const FUHLDebugCategory& DebugCategory)
@@ -172,6 +302,21 @@ void UUHLDebugSystemSubsystem::EnableDebugCategory(const FGameplayTag DebugCateg
     });
     if (UHLDebugCategory == nullptr) return;
     if (UHLDebugCategory->bRequiresPlayerControllerToEnable && !bSetUpCategoriesThatRequiresPlayerController) return;
+    if (UHLDebugCategory->bRequiresPlayerPawnToEnable)
+    {
+        APawn* Pawn = nullptr;
+        if (UWorld* World = GetWorld())
+        {
+            if (APlayerController* PC = World->GetFirstPlayerController())
+            {
+                Pawn = PC->GetPawn();
+            }
+        }
+        if (!Pawn)
+        {
+            return;
+        }
+    }
     if (UHLDebugCategory->GetIsEnabled() && bEnable) return;
     if (!UHLDebugCategory->GetIsEnabled() && !bEnable) return;
 
@@ -273,12 +418,19 @@ void UUHLDebugSystemSubsystem::OnPostWorldInit(UWorld* InWorld, const UWorld::In
 {
 	if (InWorld->IsGameWorld())
 	{
-		FOnActorSpawned::FDelegate ActorSpawnedDelegate = FOnActorSpawned::FDelegate::CreateUObject(this, &UUHLDebugSystemSubsystem::OnActorSpawned);
-		ActorSpawnedDelegateHandle = InWorld->AddOnActorSpawnedHandler(ActorSpawnedDelegate);
+		const bool bReady = TrySetupPlayerRequirements();
+
+		if (!bReady)
+		{
+			FOnActorSpawned::FDelegate ActorSpawnedDelegate = FOnActorSpawned::FDelegate::CreateUObject(this, &UUHLDebugSystemSubsystem::OnActorSpawned);
+			ActorSpawnedDelegateHandle = InWorld->AddOnActorSpawnedHandler(ActorSpawnedDelegate);
+			StartSetupRetryTimer();
+		}
 	}
 }
 
 void UUHLDebugSystemSubsystem::OnWorldBeginTearDown(UWorld* World)
 {
 	World->RemoveOnActorSpawnedHandler(ActorSpawnedDelegateHandle);
+	StopSetupRetryTimer();
 }

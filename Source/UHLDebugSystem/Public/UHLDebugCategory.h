@@ -21,10 +21,13 @@ struct FUHLDebugCategory
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
     FString Name = "";
 
-    // if DebugCategory requires PlayerController it can't be enabled before "SetUpCategoriesThatRequiresPlayerController" being called
-    // Mostly you want to add "SetUpCategoriesThatRequiresPlayerController" in your "PlayerController.BeginPlay"
+    // If true, waits for a PlayerController before activation (see subsystem setup).
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
     bool bRequiresPlayerControllerToEnable = true;
+
+    // If true, waits for PlayerController's pawn (BeginPlay completed) before activation.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
+    bool bRequiresPlayerPawnToEnable = true;
 
     // Tags associated with this debug category, like GameplayAbilities category can be activated/deactivated by tag
     // WARNING - for better experience tags are filtered add child to "UHL.DebugCategory" or "DebugCategory"

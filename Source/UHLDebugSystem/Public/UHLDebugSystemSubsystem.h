@@ -8,10 +8,16 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
 #include "GameplayTagContainer.h"
 #include "UHLDebugCategory.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Delegates/Delegate.h"
 #include "UHLDebugSystemSubsystem.generated.h"
+
+class AActor;
+class APawn;
+class APlayerController;
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUHLDebugCategoryChanged, FGameplayTag, DebugCategoryTag, bool, bEnabled);
@@ -67,15 +73,17 @@ private:
 	// waiting for PlayerController / PlayerPawn spawned to InitDebugCategories that requires them
 	UFUNCTION()
 	void OnActorSpawned(AActor* SpawnedActor);
-	void RegisterPlayerController(APlayerController* PlayerController);
-	void UnregisterPlayerControllerDelegates();
-	void OnPlayerPawnChanged(APawn* OldPawn, APawn* NewPawn);
-
 	// should be called when player controller available, e.g. in PlayerController.BeginPlay
 	void SetUpCategoriesThatRequiresPlayerController();
     // should be called when player pawn available
     void SetUpCategoriesThatRequiresPlayerPawn();
 
+	// helper to check current PC/Pawn and perform setups; returns true if both requirements are satisfied
+	bool TrySetupPlayerRequirements();
+	void StartSetupRetryTimer();
+	void StopSetupRetryTimer();
+	void OnSetupRetryTimer();
+
 	UPROPERTY()
-	TMap<TWeakObjectPtr<APlayerController>, FDelegateHandle> PawnChangedDelegateHandles;
+	FTimerHandle SetupRetryTimerHandle;
 };
