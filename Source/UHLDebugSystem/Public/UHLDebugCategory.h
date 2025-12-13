@@ -54,7 +54,11 @@ struct FUHLDebugCategory
     so when DebugCategory enables that simple component "activates", when DebugCategory
     disabled component "deactivates", such simple **/
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory", meta=(ForceShowPluginContent))
-    TArray<TSubclassOf<UUHLDebugCategoryComponent>> Components = {};
+    TArray<TSoftClassPtr<UUHLDebugCategoryComponent>> Components = {};
+
+	UPROPERTY(meta = (DeprecatedProperty, DeprecationMessage = "Replaced by soft class pointers - Use 'Components'"))
+	TArray<TSubclassOf<UUHLDebugCategoryComponent>> ComponentsOld_DEPRECATED = {};
+	
     // for UI, background color and so on
 	// ~"FColor::MakeRandomColor()" will lead to non-critical error
 	// ~unreal don't support random colors from native code.
@@ -73,6 +77,8 @@ struct FUHLDebugCategory
     void TryDisable(UObject* ContextObj);
     bool GetIsEnabled() const { return bIsEnabled; };
 
+	void PostSerialize(const FArchive& Ar);
+	
     bool operator==(const FUHLDebugCategory& Other) const
     {
         return Name == Other.Name;
@@ -88,4 +94,14 @@ private:
 
     UUHLDebugCategoryComponent* GetOrCreateDebugCategoryComponent(TSubclassOf<UUHLDebugCategoryComponent> ComponentClass, UObject* ContextObj);
     UUHLDebugCategoryComponent** GetDebugCategoryComponent(TSubclassOf<UUHLDebugCategoryComponent> ComponentClass, UObject* ContextObj);
+};
+
+
+template<>
+struct TStructOpsTypeTraits<FUHLDebugCategory> : public TStructOpsTypeTraitsBase2<FUHLDebugCategory>
+{
+	enum
+	{
+		WithPostSerialize = true,
+	};
 };

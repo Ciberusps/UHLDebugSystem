@@ -5,6 +5,7 @@
 #include "Templates/SubclassOf.h"
 #include "Kismet/GameplayStatics.h"
 #include "UHLDebugCategoryComponent.h"
+#include "UObject/SoftObjectPtr.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategory)
 
@@ -25,17 +26,19 @@ bool FUHLDebugCategory::TryEnable(UObject* ContextObj)
         PlayerController = UGameplayStatics::GetPlayerController(World, 0);
     }
 
-    int32 ComponentsActivated = 0;
-    int32 ComponentsRequiredToActivate = Components.Num();
-    for (TSubclassOf<UUHLDebugCategoryComponent> ComponentClass : Components)
-    {
-        if (!ComponentClass)
-        {
-            ComponentsRequiredToActivate--;
-            continue;
-        };
+	int32 ComponentsActivated = 0;
+	int32 ComponentsRequiredToActivate = Components.Num();
+	for (const TSoftClassPtr<UUHLDebugCategoryComponent>& ComponentClass : Components)
+	{
+		UClass* LoadedClass = ComponentClass.LoadSynchronous();
+		if (!LoadedClass)
+		{
+			ComponentsRequiredToActivate--;
+			continue;
+		}
 
-        UUHLDebugCategoryComponent* Component = GetOrCreateDebugCategoryComponent(ComponentClass, ContextObj);
+		TSubclassOf<UUHLDebugCategoryComponent> LoadedSubclass = LoadedClass;
+        UUHLDebugCategoryComponent* Component = GetOrCreateDebugCategoryComponent(LoadedSubclass, ContextObj);
         if (Component->CanActivate(ContextObj, PlayerController))
         {
             Component->Activate(ContextObj, PlayerController);
@@ -92,4 +95,20 @@ UUHLDebugCategoryComponent** FUHLDebugCategory::GetDebugCategoryComponent(TSubcl
         {
             return DebugCategoryComponent->GetClass() == ComponentClass;
         });
+}
+
+
+void FUHLDebugCategory::PostSerialize(const FArchive& Ar)
+{
+	if (Ar.IsLoading() && Components.IsEmpty() && !ComponentsOld_DEPRECATED.IsEmpty())
+	{
+		for (const TSubclassOf<UUHLDebugCategoryComponent>& LegacyClass : ComponentsOld_DEPRECATED)
+		{
+			if (LegacyClass)
+			{
+				Components.Add(LegacyClass.Get());
+			}
+		}
+		ComponentsOld_DEPRECATED.Reset();
+	}
 }

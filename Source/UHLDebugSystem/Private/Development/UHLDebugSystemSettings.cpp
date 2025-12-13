@@ -68,7 +68,7 @@ TArray<FUHLDebugCategory> UUHLDebugSystemSettings::GET_DEFAULT_UHL_DEBUG_CATEGOR
     AbilitySystemAttributesDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem_Attributes };
     AbilitySystemAttributesDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem);
     AbilitySystemAttributesDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_InputSystem_EnhancedInputSystem);
-    AbilitySystemAttributesDebugCategory.Components = { UDCC_AbilitySystem_Attributes::StaticClass() };
+	AbilitySystemAttributesDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_AbilitySystem_Attributes::StaticClass()) };
     AbilitySystemAttributesDebugCategory.bIsDefaultUHLDebugCategory = true;
     DEFAULT_UHL_DEBUG_CATEGORIES.Add(AbilitySystemAttributesDebugCategory);
 
@@ -77,7 +77,7 @@ TArray<FUHLDebugCategory> UUHLDebugSystemSettings::GET_DEFAULT_UHL_DEBUG_CATEGOR
     AbilitySystemEffectsDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem_Effects };
     AbilitySystemEffectsDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem);
     AbilitySystemEffectsDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_InputSystem_EnhancedInputSystem);
-    AbilitySystemEffectsDebugCategory.Components = { UDCC_AbilitySystem_Effects::StaticClass() };
+	AbilitySystemEffectsDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_AbilitySystem_Effects::StaticClass()) };
     AbilitySystemEffectsDebugCategory.bIsDefaultUHLDebugCategory = true;
     DEFAULT_UHL_DEBUG_CATEGORIES.Add(AbilitySystemEffectsDebugCategory);
 
@@ -86,7 +86,7 @@ TArray<FUHLDebugCategory> UUHLDebugSystemSettings::GET_DEFAULT_UHL_DEBUG_CATEGOR
     AbilitySystemAbilitiesDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem_Abilities };
     AbilitySystemAbilitiesDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem);
     AbilitySystemAbilitiesDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_InputSystem_EnhancedInputSystem);
-    AbilitySystemAbilitiesDebugCategory.Components = { UDCC_AbilitySystem_Abilities::StaticClass() };
+	AbilitySystemAbilitiesDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_AbilitySystem_Abilities::StaticClass()) };
     AbilitySystemAbilitiesDebugCategory.bIsDefaultUHLDebugCategory = true;
     DEFAULT_UHL_DEBUG_CATEGORIES.Add(AbilitySystemAbilitiesDebugCategory);
 
@@ -94,7 +94,7 @@ TArray<FUHLDebugCategory> UUHLDebugSystemSettings::GET_DEFAULT_UHL_DEBUG_CATEGOR
     EnhancedInputSystemDebugCategory.Name = "EnhancedInputSystem";
     EnhancedInputSystemDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_InputSystem_EnhancedInputSystem };
     EnhancedInputSystemDebugCategory.Blocks.AddTag(UHLDebugSystemTags::TAG_UHL_DebugCategory_AbilitySystem);
-    EnhancedInputSystemDebugCategory.Components = { UDCC_InputSystem_EnhancedInput::StaticClass() };
+	EnhancedInputSystemDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_InputSystem_EnhancedInput::StaticClass()) };
     EnhancedInputSystemDebugCategory.bIsDefaultUHLDebugCategory = true;
     DEFAULT_UHL_DEBUG_CATEGORIES.Add(EnhancedInputSystemDebugCategory);
 
@@ -102,13 +102,13 @@ TArray<FUHLDebugCategory> UUHLDebugSystemSettings::GET_DEFAULT_UHL_DEBUG_CATEGOR
     AbilityInputCacheDebugCategory.Name = "AbilityInputCache";
     AbilityInputCacheDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_InputSystem_AbilityInputCache };
     AbilityInputCacheDebugCategory.bIsDefaultUHLDebugCategory = true;
-    AbilityInputCacheDebugCategory.Components = { UDCC_AbilityInputCache::StaticClass() };
+	AbilityInputCacheDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_AbilityInputCache::StaticClass()) };
     DEFAULT_UHL_DEBUG_CATEGORIES.Add(AbilityInputCacheDebugCategory);
 
 	FUHLDebugCategory CollisionsDebugCategory = {};
 	CollisionsDebugCategory.Name = "Collisions";
     CollisionsDebugCategory.Tags = FGameplayTagContainer{ UHLDebugSystemTags::TAG_UHL_DebugCategory_Collisions };
-	EnhancedInputSystemDebugCategory.Components = { UDCC_Collisions::StaticClass() };
+	CollisionsDebugCategory.Components = { TSoftClassPtr<UUHLDebugCategoryComponent>(UDCC_Collisions::StaticClass()) };
 	CollisionsDebugCategory.bIsDefaultUHLDebugCategory = true;
 	DEFAULT_UHL_DEBUG_CATEGORIES.Add(CollisionsDebugCategory);
 
