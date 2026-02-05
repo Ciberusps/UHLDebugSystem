@@ -1,7 +1,7 @@
 // Pavel Penkov 2025 All Rights Reserved.
 
 
-#include "DebugCategoryButtonWidget.h"
+#include "UI/UHLDebugCategoryButtonWidget.h"
 
 #include "Engine/GameInstance.h"
 #include "Blueprint/WidgetTree.h"
@@ -15,29 +15,33 @@
 #include "UHLDebugCategory.h"
 #include "UHLDebugSystemSubsystem.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(DebugCategoryButtonWidget)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategoryButtonWidget)
 
-void UDebugCategoryButtonWidget::SetUp(const FUHLDebugCategory& UHLDebugCategory_In)
+void UUHLDebugCategoryButtonWidget::SetUp(const FUHLDebugCategory& UHLDebugCategory_In)
 {
     UHLDebugCategory = UHLDebugCategory_In;
     TextBlock->SetText(FText::FromString(UHLDebugCategory_In.Name));
     UpdateCheckboxState(UHLDebugCategory_In.GetIsEnabled());
     Button->SetBackgroundColor(UHLDebugCategory.Color);
-    Button->OnClicked.AddUniqueDynamic(this, &UDebugCategoryButtonWidget::OnButtonClicked);
+    if (!UHLDebugCategory_In.Description.IsEmpty())
+    {
+        Button->SetToolTipText(FText::FromString(UHLDebugCategory_In.Description));
+    }
+    Button->OnClicked.AddUniqueDynamic(this, &UUHLDebugCategoryButtonWidget::OnButtonClicked);
     UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
     if (GameInstance)
     {
         UUHLDebugSystemSubsystem* UHLDebugSubsystem = GameInstance->GetSubsystem<UUHLDebugSystemSubsystem>();
-        UHLDebugSubsystem->OnDebugCategoryChanged.AddUniqueDynamic(this, &UDebugCategoryButtonWidget::OnDebugCategoryChanged);
+        UHLDebugSubsystem->OnDebugCategoryChanged.AddUniqueDynamic(this, &UUHLDebugCategoryButtonWidget::OnDebugCategoryChanged);
     }
 }
 
-void UDebugCategoryButtonWidget::UpdateCheckboxState(bool bEnabled_In)
+void UUHLDebugCategoryButtonWidget::UpdateCheckboxState(bool bEnabled_In)
 {
     CheckBox->SetCheckedState(bEnabled_In ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
 }
 
-bool UDebugCategoryButtonWidget::Initialize()
+bool UUHLDebugCategoryButtonWidget::Initialize()
 {
     bool bIsWidgetInitialized = Super::Initialize();
 
@@ -51,7 +55,7 @@ bool UDebugCategoryButtonWidget::Initialize()
     return bIsWidgetInitialized;
 }
 
-void UDebugCategoryButtonWidget::NativePreConstruct()
+void UUHLDebugCategoryButtonWidget::NativePreConstruct()
 {
     Super::NativeConstruct();
 
@@ -62,6 +66,9 @@ void UDebugCategoryButtonWidget::NativePreConstruct()
     TextBlock = WidgetTree->ConstructWidget<UTextBlock>();
     if (!HorizontalBox || !CheckBox || !TextBlock) return;
 
+    FSlateFontInfo FontInfo = TextBlock->GetFont();
+    FontInfo.Size = FMath::RoundToInt(FontInfo.Size / 1.5f);
+    TextBlock->SetFont(FontInfo);
     TextBlock->SetShadowOffset(FVector2D(1.0f, 1.0f));
     TextBlock->SetShadowColorAndOpacity(FColor::FromHex("#000000FF"));
     TextBlock->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -90,7 +97,7 @@ void UDebugCategoryButtonWidget::NativePreConstruct()
     TextBlockHorizontalBoxSlot->SetVerticalAlignment(VAlign_Top);
 }
 
-void UDebugCategoryButtonWidget::OnButtonClicked()
+void UUHLDebugCategoryButtonWidget::OnButtonClicked()
 {
     if (OnMadeClick.IsBound())
     {
@@ -98,7 +105,7 @@ void UDebugCategoryButtonWidget::OnButtonClicked()
     }
 }
 
-void UDebugCategoryButtonWidget::OnDebugCategoryChanged(FGameplayTag DebugCategoryTag_In, bool bEnabled_In)
+void UUHLDebugCategoryButtonWidget::OnDebugCategoryChanged(FGameplayTag DebugCategoryTag_In, bool bEnabled_In)
 {
     if (UHLDebugCategory.Tags.First() == DebugCategoryTag_In)
     {

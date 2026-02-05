@@ -9,7 +9,7 @@
 #include "Components/ScrollBoxSlot.h"
 #include "Development/UHLDebugSystemSettings.h"
 #include "Kismet/GameplayStatics.h"
-#include "DebugCategoryButtonWidget.h"
+#include "UI/UHLDebugCategoryButtonWidget.h"
 #include "UHLDebugSystemSubsystem.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategoriesListWidget)
@@ -41,7 +41,7 @@ void UUHLDebugCategoriesListWidget::NativeConstruct()
     const TArray<FUHLDebugCategory>& UHLDebugCategories = UHLDebugSubsystem->GetDebugCategories();
     for (const FUHLDebugCategory& UHLDebugCategory : UHLDebugCategories)
     {
-        UDebugCategoryButtonWidget* UHLDebugCategoryButton = WidgetTree->ConstructWidget<UDebugCategoryButtonWidget>();
+        UUHLDebugCategoryButtonWidget* UHLDebugCategoryButton = WidgetTree->ConstructWidget<UUHLDebugCategoryButtonWidget>();
         UScrollBoxSlot* ScrollBoxSlot = Cast<UScrollBoxSlot>(ScrollBox->AddChild(UHLDebugCategoryButton));
         UHLDebugCategoryButton->SetUp(UHLDebugCategory);
         UHLDebugCategoryButton->OnMadeClick.AddUniqueDynamic(this, &UUHLDebugCategoriesListWidget::OnButtonClicked);
@@ -57,7 +57,7 @@ void UUHLDebugCategoriesListWidget::NativePreConstruct()
     const UUHLDebugSystemSettings* DeveloperSettings = GetDefault<UUHLDebugSystemSettings>();
     for (TTuple<FGameplayTag, bool> EnabledDebugCategory : DeveloperSettings->EnabledDebugCategories)
     {
-        UDebugCategoryButtonWidget* UHLDebugCategoryButton = WidgetTree->ConstructWidget<UDebugCategoryButtonWidget>();
+        UUHLDebugCategoryButtonWidget* UHLDebugCategoryButton = WidgetTree->ConstructWidget<UUHLDebugCategoryButtonWidget>();
         UScrollBoxSlot* ScrollBoxSlot = Cast<UScrollBoxSlot>(ScrollBox->AddChild(UHLDebugCategoryButton));
 
         const FUHLDebugCategory* UHLDebugCategory = DeveloperSettings->DebugCategories.FindByPredicate([=](const FUHLDebugCategory& DebugCategory)
@@ -72,7 +72,7 @@ void UUHLDebugCategoriesListWidget::NativePreConstruct()
     }
 }
 
-void UUHLDebugCategoriesListWidget::OnButtonClicked(UDebugCategoryButtonWidget* Button, FGameplayTag DebugCategoryGameplayTag)
+void UUHLDebugCategoriesListWidget::OnButtonClicked(UUHLDebugCategoryButtonWidget* Button, FGameplayTag DebugCategoryGameplayTag)
 {
     if (!Button) return;
 

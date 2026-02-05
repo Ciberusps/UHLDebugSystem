@@ -6,9 +6,9 @@
 #include "GameplayTagContainer.h"
 #include "UHLDebugCategory.h"
 #include "Blueprint/UserWidget.h"
-#include "DebugCategoryButtonWidget.generated.h"
+#include "UHLDebugCategoryButtonWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDebugCategoryButtonClick, UDebugCategoryButtonWidget*, Button, FGameplayTag, DebugCategoryTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDebugCategoryButtonClick, UUHLDebugCategoryButtonWidget*, Button, FGameplayTag, DebugCategoryTag);
 
 class UUHLDebugSystemSubsystem;
 struct FUHLDebugCategory;
@@ -20,7 +20,7 @@ class UButton;
  *
  */
 UCLASS()
-class UHLDEBUGSYSTEM_API UDebugCategoryButtonWidget : public UUserWidget
+class UHLDEBUGSYSTEM_API UUHLDebugCategoryButtonWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

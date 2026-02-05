@@ -21,6 +21,9 @@ struct FUHLDebugCategory
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
     FString Name = "";
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
+    FString Description = "";
+
     // If true, waits for a PlayerController before activation (see subsystem setup).
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UHLDebugCategory")
     bool bRequiresPlayerControllerToEnable = true;

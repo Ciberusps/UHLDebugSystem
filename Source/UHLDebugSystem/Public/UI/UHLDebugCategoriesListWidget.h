@@ -8,7 +8,7 @@
 #include "UHLDebugCategoriesListWidget.generated.h"
 
 class UUHLDebugSystemSubsystem;
-class UDebugCategoryButtonWidget;
+class UUHLDebugCategoryButtonWidget;
 class UCanvasPanel;
 /**
  *
@@ -28,5 +28,5 @@ private:
     UScrollBox* ScrollBox;
     TWeakObjectPtr<UUHLDebugSystemSubsystem> UHLDebugSubsystem;
     UFUNCTION()
-    void OnButtonClicked(UDebugCategoryButtonWidget* Button, FGameplayTag DebugCategoryGameplayTag);
+    void OnButtonClicked(UUHLDebugCategoryButtonWidget* Button, FGameplayTag DebugCategoryGameplayTag);
 };
