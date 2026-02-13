@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ScrollBox.h"
+#include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
+#include "Components/HorizontalBox.h"
+#include "UHLDebugCategory.h"
 #include "UHLDebugCategoriesListWidget.generated.h"
 
 class UUHLDebugSystemSubsystem;
 class UUHLDebugCategoryButtonWidget;
-class UCanvasPanel;
 /**
  *
  */
@@ -26,7 +29,26 @@ protected:
 private:
     UPROPERTY()
     UScrollBox* ScrollBox;
+    
+    UPROPERTY()
+    UEditableTextBox* FilterTextBox;
+    
+    UPROPERTY()
+    UTextBlock* CategoriesCountText;
+    
     TWeakObjectPtr<UUHLDebugSystemSubsystem> UHLDebugSubsystem;
+    
+    FString FilterText;
+    
     UFUNCTION()
     void OnButtonClicked(UUHLDebugCategoryButtonWidget* Button, FGameplayTag DebugCategoryGameplayTag);
+    
+    UFUNCTION()
+    void OnFilterTextChanged(const FText& InText);
+    
+    void RefreshCategoryList();
+    
+    void UpdateCategoriesCount(int32 TotalCount, int32 FilteredCount);
+    
+    bool MatchesFilter(const FUHLDebugCategory& Category) const;
 };

@@ -69,10 +69,10 @@ namespace UHLDebugSystemEditorFunctionLibrary
 		MenuBuilder.BeginSection(NAME_None, FText::FromString("DebugCategories"));
 		for (const FUHLDebugCategory& DebugCategory : GetDefault<UUHLDebugSystemSettings>()->DebugCategories)
 		{
-			const FText DisplayName = FText::FromString(DebugCategory.Tags.First().ToString());
+			const FText DisplayName = FText::FromString(DebugCategory.Name);
 			MenuBuilder.AddMenuEntry(
 				DisplayName,
-				FText::Format(LOCTEXT("DebugCategoryDescription", "{0}"), FText::FromString(DebugCategory.Name)),
+				FText::Format(LOCTEXT("DebugCategoryDescription", "{0}"), FText::FromString(DebugCategory.Tags.First().ToString())),
 				FSlateIcon(),
 				FUIAction(
 					FExecuteAction::CreateStatic(&UHLDebugSystemEditorFunctionLibrary::ToggleDebugCategory_Clicked, DebugCategory.Tags.First()),

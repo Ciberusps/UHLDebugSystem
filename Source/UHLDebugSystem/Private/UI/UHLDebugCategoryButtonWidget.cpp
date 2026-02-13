@@ -23,10 +23,32 @@ void UUHLDebugCategoryButtonWidget::SetUp(const FUHLDebugCategory& UHLDebugCateg
     TextBlock->SetText(FText::FromString(UHLDebugCategory_In.Name));
     UpdateCheckboxState(UHLDebugCategory_In.GetIsEnabled());
     Button->SetBackgroundColor(UHLDebugCategory.Color);
-    if (!UHLDebugCategory_In.Description.IsEmpty())
+    
+    // Build tooltip with description and tags
+    FString TooltipText = UHLDebugCategory_In.Description;
+    
+    if (UHLDebugCategory_In.Tags.Num() > 0)
     {
-        Button->SetToolTipText(FText::FromString(UHLDebugCategory_In.Description));
+        if (!TooltipText.IsEmpty())
+        {
+            TooltipText += TEXT("\n\nTags:\n");
+        }
+        else
+        {
+            TooltipText = TEXT("Tags:\n");
+        }
+        
+        for (const FGameplayTag& Tag : UHLDebugCategory_In.Tags)
+        {
+            TooltipText += FString::Printf(TEXT("• %s\n"), *Tag.ToString());
+        }
     }
+    
+    if (!TooltipText.IsEmpty())
+    {
+        Button->SetToolTipText(FText::FromString(TooltipText));
+    }
+    
     Button->OnClicked.AddUniqueDynamic(this, &UUHLDebugCategoryButtonWidget::OnButtonClicked);
     UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
     if (GameInstance)
