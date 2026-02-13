@@ -7,12 +7,12 @@
 #include "Components/ScrollBox.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
+#include "Components/HorizontalBox.h"
 #include "UHLDebugCategory.h"
 #include "UHLDebugCategoriesListWidget.generated.h"
 
 class UUHLDebugSystemSubsystem;
 class UUHLDebugCategoryButtonWidget;
-class UCanvasPanel;
 /**
  *
  */

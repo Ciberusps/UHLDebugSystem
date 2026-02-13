@@ -9,10 +9,13 @@
 #include "Components/ScrollBoxSlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Development/UHLDebugSystemSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UHLDebugCategoryButtonWidget.h"
 #include "UHLDebugSystemSubsystem.h"
+#include "Components/SizeBox.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(UHLDebugCategoriesListWidget)
 
@@ -22,24 +25,46 @@ bool UUHLDebugCategoriesListWidget::Initialize()
 
     if(!HasAnyFlags(RF_ClassDefaultObject))
     {
-        // Create root vertical box to contain filter box, count text, and scroll box
+        // Create root vertical box to contain top bar and scroll box
         UVerticalBox* RootVerticalBox = WidgetTree->ConstructWidget<UVerticalBox>();
         WidgetTree->RootWidget = RootVerticalBox;
         
+        // Create horizontal box for filter and count
+        UHorizontalBox* TopBarHorizontalBox = WidgetTree->ConstructWidget<UHorizontalBox>();
+
+		// Create size-limited container for top bar
+		USizeBox* TopBarSizeBox = WidgetTree->ConstructWidget<USizeBox>();
+		TopBarSizeBox->SetMaxDesiredHeight(30.0f);
+		TopBarSizeBox->AddChild(TopBarHorizontalBox);
+		
+		UVerticalBoxSlot* TopBarSlot = Cast<UVerticalBoxSlot>(RootVerticalBox->AddChild(TopBarSizeBox));
+		TopBarSlot->SetSize(ESlateSizeRule::Automatic);
+		TopBarSlot->SetPadding(FMargin(0, 0, 0, 10));
+        
         // Create filter text box
         FilterTextBox = WidgetTree->ConstructWidget<UEditableTextBox>();
-        FilterTextBox->SetHintText(FText::FromString(TEXT("Filter by name or tag...")));
-        UVerticalBoxSlot* FilterSlot = Cast<UVerticalBoxSlot>(RootVerticalBox->AddChild(FilterTextBox));
+        FilterTextBox->SetHintText(FText::FromString(TEXT("Filter by name/tag")));
+        FSlateFontInfo FilterTextBoxFontInfo = FilterTextBox->WidgetStyle.TextStyle.Font;
+        FilterTextBoxFontInfo.Size = 14;
+    	FilterTextBox->WidgetStyle.BackgroundColor = FLinearColor(0.13f, 0.14f, 0.15f, 1.0f);
+    	FilterTextBox->WidgetStyle.TextStyle.ColorAndOpacity = FSlateColor(FLinearColor::White);
+        FilterTextBox->WidgetStyle.TextStyle.SetFont(FilterTextBoxFontInfo);
+        UHorizontalBoxSlot* FilterSlot = Cast<UHorizontalBoxSlot>(TopBarHorizontalBox->AddChild(FilterTextBox));
         FilterSlot->SetSize(ESlateSizeRule::Fill);
-        FilterSlot->SetPadding(FMargin(0, 0, 0, 10));
+        FilterSlot->SetPadding(FMargin(0, 0, 10, 0));
         FilterTextBox->OnTextChanged.AddUniqueDynamic(this, &UUHLDebugCategoriesListWidget::OnFilterTextChanged);
         
         // Create categories count text
         CategoriesCountText = WidgetTree->ConstructWidget<UTextBlock>();
-        CategoriesCountText->SetText(FText::FromString(TEXT("Categories: 0/0")));
-        UVerticalBoxSlot* CountSlot = Cast<UVerticalBoxSlot>(RootVerticalBox->AddChild(CategoriesCountText));
-        CountSlot->SetSize(ESlateSizeRule::Fill);
-        CountSlot->SetPadding(FMargin(0, 0, 0, 10));
+        CategoriesCountText->SetText(FText::FromString(TEXT("0/0")));
+        CategoriesCountText->SetMinDesiredWidth(30.0f);
+    	FSlateFontInfo CategoriesCountTextFontInfo = CategoriesCountText->GetFont();
+    	CategoriesCountTextFontInfo.Size = FMath::RoundToInt(CategoriesCountTextFontInfo.Size / 1.2f);
+    	CategoriesCountText->SetFont(CategoriesCountTextFontInfo);
+    	CategoriesCountText->SetShadowOffset(FVector2D(1.0f, 1.0f));
+    	CategoriesCountText->SetShadowColorAndOpacity(FColor::FromHex("#000000FF"));
+        UHorizontalBoxSlot* CountSlot = Cast<UHorizontalBoxSlot>(TopBarHorizontalBox->AddChild(CategoriesCountText));
+        CountSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Right);
         
         // Create scroll box for categories
         ScrollBox = WidgetTree->ConstructWidget<UScrollBox>();
@@ -131,7 +156,7 @@ void UUHLDebugCategoriesListWidget::UpdateCategoriesCount(int32 TotalCount, int3
 {
     if (CategoriesCountText)
     {
-        FString CountString = FString::Printf(TEXT("Categories: %d/%d"), FilteredCount, TotalCount);
+        FString CountString = FString::Printf(TEXT("%d/%d"), FilteredCount, TotalCount);
         CategoriesCountText->SetText(FText::FromString(CountString));
     }
 }
