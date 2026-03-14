@@ -11,8 +11,6 @@ Part of [UnrealHelperLibrary](https://github.com/Ciberusps/unreal-helper-library
 
 Support: `UE5.4(at least) - UE5.6`
 
-TODO: screenshot
-
 ## ✨ Features
 
 - Define DebugCategories using tags, Block other DebugCategories by tags
