@@ -20,6 +20,8 @@ Support: `UE5.4(at least) - UE5.6`
 - You can even compose DebugCategoryComponents e.g. you want Collisions + HitBoxes, so you can create combined DebugCategory and add "DCC_Collisions" and "DCC_HitBoxes"
 - Branch your logic depending on DebugCategories - for your demo/release game version
 
+<img width="462" height="1040" alt="image" src="https://github.com/user-attachments/assets/915433a6-c1c9-46da-9ab1-c54b31d5fde1" />
+
 ## 🚀 Install & ⬆️ Update
 
 ### From github (recommended)
